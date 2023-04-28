@@ -1,0 +1,72 @@
+
+
+buildscript {
+    ext {
+        kotlinVersion = '1.8.20' // https://github.com/JetBrains/kotlin/releases/latest
+        junit5Version = "5.8.2" // https://junit.org/junit5/
+    }
+    repositories {
+        mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+    }
+}
+
+plugins {
+    id "org.jetbrains.kotlin.jvm" version "$kotlinVersion" apply false
+}
+
+group = "me.retrodaredevil.minecraft.transport"
+version = "1.0-SNAPSHOT"
+
+subprojects {
+    apply plugin: "kotlin"
+
+    /*
+    https://minecraft.fandom.com/wiki/Server/Requirements
+    Minecraft 1.17 requires Java 16 (*)
+    Minecraft 1.18 requires Java 17
+     */
+    def javaVersion = JavaVersion.VERSION_16
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
+
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://hub.spigotmc.org/nexus/content/repositories/snapshots/"
+        }
+//        maven { url 'https://www.jitpack.io' }
+    }
+
+    dependencies {
+        implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+        testImplementation "org.junit.jupiter:junit-jupiter-engine:$junit5Version"
+        testImplementation "org.junit.jupiter:junit-jupiter-api:$junit5Version"
+    }
+    test {
+        useJUnitPlatform()
+    }
+    compileKotlin {
+        compilerOptions {
+            // jsr305 gives nullable/nonnull support for Java code annotated with javax stuff
+            freeCompilerArgs.addAll("-Xjsr305=strict")
+        }
+    }
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(javaVersion.toString())
+        }
+    }
+
+    [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+}
+wrapper {
+    // https://gradle.org/releases/
+    gradleVersion = '8.1.1'
+    distributionType = Wrapper.DistributionType.ALL
+}

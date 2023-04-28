@@ -1,0 +1,15 @@
+apply plugin: "kotlin"
+
+dependencies {
+//    implementation "org.jetbrains.kotlin:kotlin-runtime:$kotlinVersion"
+    // https://hub.spigotmc.org/nexus/content/repositories/snapshots/org/spigotmc/spigot-api/
+    compileOnly "org.spigotmc:spigot-api:1.17.1-R0.1-SNAPSHOT"
+}
+
+task fatJar(type: Jar) {
+//    manifest {
+//    }
+    archiveBaseName = "transport"
+    from { configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
